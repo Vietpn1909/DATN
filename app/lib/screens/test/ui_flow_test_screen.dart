@@ -50,24 +50,24 @@ class _UIFlowTestScreenState extends State<UIFlowTestScreen> {
       }
 
       // Get warning
-      final warning = _warningService.getNextWarning(result);
+      final warningResult = _warningService.getNextWarning(result);
 
       setState(() {
         _detections = result.detections;
-        _lastWarning = warning ?? _lastWarning;
+        _lastWarning = warningResult?.text ?? _lastWarning;
       });
 
       // Play warning sound
-      if (warning != null) {
-        _ttsService.speak(warning);
+      if (warningResult != null) {
+        _ttsService.speak(warningResult.text, type: warningResult.type);
       }
 
       // Print warning
-      if (warning != null) {
-        debugPrint('🔊 WARNING: $warning');
+      if (warningResult != null) {
+        debugPrint('🔊 WARNING: ${warningResult.text}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(warning),
+            content: Text(warningResult.text),
             duration: const Duration(seconds: 3),
             backgroundColor: Colors.red,
           ),

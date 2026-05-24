@@ -8,6 +8,7 @@ import 'package:safewalk_hanoi/models/detection.dart';
 import 'package:safewalk_hanoi/services/danger_zone_service.dart';
 import 'package:safewalk_hanoi/providers/providers.dart';
 import 'package:safewalk_hanoi/providers/navigation_provider.dart';
+import 'package:safewalk_hanoi/services/warning_service.dart';
 
 import 'package:safewalk_hanoi/screens/home/widgets/navigation_panel.dart';
 import 'package:safewalk_hanoi/screens/home/widgets/status_bar.dart';
@@ -127,15 +128,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
 
     // Xử lý warning trực tiếp từ raw detections (bỏ qua temporal filter để phản ứng nhanh nhất)
     final warningService = ref.read(warningServiceProvider);
-    final warning = warningService.getNextWarning(
+    final warningResult = warningService.getNextWarning(
       result,
       dangerZone: null,
     );
 
-    if (warning != null) {
+    if (warningResult != null) {
       final tts = ref.read(ttsServiceProvider);
-      // Phát cảnh báo ngay
-      tts.speak(warning);
+      // Phát cảnh báo với mức ưu tiên phù hợp:
+      // - urgentWarning (ô tô, xe máy, xe buýt): ngắt navigation ngay
+      // - warning (người đi bộ, xe đạp): ngắt navigation ngay
+      // - lowWarning (vạch kẻ, đèn, biển...): chỉ phát khi TTS rảnh
+      tts.speak(warningResult.text, type: warningResult.type);
     }
 
     // Throttle UI updates: chỉ rebuild mỗi 100ms (10 FPS)
@@ -145,13 +149,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
       setState(() {
         _detections = result.detections;
         _priority = result.priorityDetection;
-        _currentWarning = warning ?? _currentWarning;
+        _currentWarning = warningResult?.text ?? _currentWarning;
       });
     } else {
       // Vẫn cập nhật state nội bộ (cho warning logic) nhưng không rebuild
       _detections = result.detections;
       _priority = result.priorityDetection;
-      if (warning != null) _currentWarning = warning;
+      if (warningResult != null) _currentWarning = warningResult.text;
     }
   }
 

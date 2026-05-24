@@ -49,7 +49,7 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
   /// Bắt đầu tìm đường từ giọng nói
   Future<void> startNavigation(String destinationQuery) async {
     state = state.copyWith(status: NavigationStatus.searching);
-    await _tts.speak('Đang tìm đường đến $destinationQuery...');
+    await _tts.speak('Đang tìm đường đến $destinationQuery...', type: TtsMessageType.navigation);
 
     // Lấy vị trí hiện tại
     final currentPos = await _locationService.getCurrentPosition();
@@ -58,7 +58,7 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
         status: NavigationStatus.error,
         errorMessage: 'Không lấy được vị trí GPS. Vui lòng bật GPS.',
       );
-      await _tts.speak('Không lấy được vị trí GPS. Vui lòng bật GPS và thử lại.');
+      await _tts.speak('Không lấy được vị trí GPS. Vui lòng bật GPS và thử lại.', type: TtsMessageType.navigation);
       return;
     }
 
@@ -69,7 +69,7 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
         status: NavigationStatus.error,
         errorMessage: 'Không tìm thấy đường đến $destinationQuery.',
       );
-      await _tts.speak('Không tìm thấy đường đến $destinationQuery. Vui lòng thử lại.');
+      await _tts.speak('Không tìm thấy đường đến $destinationQuery. Vui lòng thử lại.', type: TtsMessageType.navigation);
       return;
     }
 
@@ -87,12 +87,13 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
       'Khoảng cách ${route.totalDistanceText}, '
       'thời gian đi bộ khoảng ${route.totalDurationText}. '
       'Bắt đầu chỉ đường.',
+      type: TtsMessageType.navigation,
     );
 
     // Thông báo bước đầu tiên
     await Future.delayed(const Duration(seconds: 2));
     if (state.isNavigating && route.steps.isNotEmpty) {
-      await _tts.speak(route.steps[0].toSpeechText());
+      await _tts.speak(route.steps[0].toSpeechText(), type: TtsMessageType.navigation);
     }
 
     // Bắt đầu GPS tracking
@@ -105,7 +106,7 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
     _locationService.stopTracking();
     _locationService.onLocationUpdate = null;
     state = NavigationState.initial;
-    await _tts.speak('Đã dừng chỉ đường.');
+    await _tts.speak('Đã dừng chỉ đường.', type: TtsMessageType.navigation);
     debugPrint('[Nav] Navigation stopped');
   }
 
@@ -165,7 +166,7 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
 
     final nextStep = route.steps[nextIndex];
     debugPrint('[Nav] Step $nextIndex: ${nextStep.instructionText}');
-    _tts.speak(nextStep.toSpeechText());
+    _tts.speak(nextStep.toSpeechText(), type: TtsMessageType.navigation);
   }
 
   void _onArrived() {
@@ -174,7 +175,7 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
 
     final destName = state.route?.destinationName ?? 'điểm đến';
     state = state.copyWith(status: NavigationStatus.arrived);
-    _tts.speak('Bạn đã đến $destName!');
+    _tts.speak('Bạn đã đến $destName!', type: TtsMessageType.navigation);
     debugPrint('[Nav] Arrived at $destName');
   }
 }
