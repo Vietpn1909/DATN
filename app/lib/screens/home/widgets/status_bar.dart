@@ -49,21 +49,7 @@ class StatusBar extends StatelessWidget {
               ),
             ),
 
-            if (currentWarning != null) ...[
-              const SizedBox(height: 4),
-              Semantics(
-                liveRegion: true,
-                child: Text(
-                  currentWarning!,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    color: AppTheme.warning,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+
 
             const SizedBox(height: 4),
             // FPS (nhỏ hơn, cho developer/caregiver)

@@ -84,8 +84,7 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
     // Thông báo tổng quan
     await _tts.speak(
       'Tìm thấy đường đến ${route.destinationName}. '
-      'Khoảng cách ${route.totalDistanceText}, '
-      'thời gian đi bộ khoảng ${route.totalDurationText}. '
+      'Khoảng cách ${route.totalDistanceText}. '
       'Bắt đầu chỉ đường.',
       type: TtsMessageType.navigation,
     );
