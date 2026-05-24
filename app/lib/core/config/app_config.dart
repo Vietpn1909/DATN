@@ -11,7 +11,7 @@ class AppConfig {
   /// Set to true để dùng GPU acceleration (nếu thiết bị hỗ trợ)
   /// Float16 model tương thích tốt với GPU delegate (Metal trên iOS, OpenGL/Vulkan trên Android).
   /// Lưu ý: INT8 quantized KHÔNG tương thích với Metal → đã fix bằng cách chuyển sang float16.
-  static const bool useGpuDelegate = true;
+  static const bool useGpuDelegate = false;
 
   /// Số luồng xử lý CPU (tăng lên 4-6 để bù lại việc không dùng GPU)
   static const int numThreads = 6;
