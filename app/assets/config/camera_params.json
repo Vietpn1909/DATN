@@ -1,0 +1,58 @@
+{
+    "_comment": "Camera calibration parameters for distance estimation",
+    "_usage": "focal_length_px = (focal_length_mm / sensor_width_mm) * image_width_px",
+
+    "default": {
+        "focal_length_px": 600,
+        "image_width": 640,
+        "image_height": 640,
+        "description": "Default parameters - cần calibrate cho từng điện thoại cụ thể"
+    },
+
+    "phones": {
+        "samsung_a54": {
+            "focal_length_mm": 5.4,
+            "sensor_width_mm": 5.6,
+            "focal_length_px": 617,
+            "description": "Samsung Galaxy A54 - main camera"
+        },
+        "xiaomi_redmi_note_12": {
+            "focal_length_mm": 5.43,
+            "sensor_width_mm": 5.6,
+            "focal_length_px": 621,
+            "description": "Xiaomi Redmi Note 12 - main camera"
+        },
+        "iphone_13": {
+            "focal_length_mm": 5.1,
+            "sensor_width_mm": 5.1,
+            "focal_length_px": 640,
+            "description": "iPhone 13 - wide camera"
+        }
+    },
+
+    "real_heights_m": {
+        "_comment": "Chiều cao thực trung bình (mét) cho mỗi class - dùng cho pinhole camera model",
+        "0_person": 1.65,
+        "1_bicyclist": 1.70,
+        "2_motorcyclist": 1.60,
+        "3_car": 1.50,
+        "4_bus": 3.00,
+        "5_motorcycle": 1.10,
+        "6_crosswalk": 0.0,
+        "7_pole": 2.50,
+        "8_traffic_light": 0.60,
+        "9_traffic_sign": 0.60,
+        "10_barrier": 0.90
+    },
+
+    "real_widths_m": {
+        "_comment": "Chiều rộng thực trung bình (mét) - dùng cho crosswalk và các vật nằm ngang",
+        "6_crosswalk": 3.00
+    },
+
+    "warning_thresholds_m": {
+        "close": 3.0,
+        "medium": 7.0,
+        "_comment": "close: < 3m, medium: 3-7m, far: > 7m"
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "description": "Core classes for visually-impaired street assistance in Old Quarter",
+  "classes": [
+    "human--person--individual",
+    "human--rider--bicyclist",
+    "human--rider--motorcyclist",
+    "object--vehicle--car",
+    "object--vehicle--bus",
+    "object--vehicle--truck",
+    "object--vehicle--motorcycle",
+    "construction--flat--road",
+    "construction--flat--sidewalk",
+    "construction--barrier--curb",
+    "construction--flat--crosswalk-plain",
+    "object--support--pole",
+    "object--traffic-light--general-single",
+    "object--traffic-light--pedestrians",
+    "object--traffic-light--general-upright",
+    "object--traffic-light--general-horizontal",
+    "object--traffic-sign--front",
+    "object--traffic-sign--direction-front",
+    "object--traffic-sign--information-parking",
+    "object--traffic-sign--temporary-front",
+    "construction--barrier--other-barrier",
+    "construction--barrier--temporary"
+  ]
+}

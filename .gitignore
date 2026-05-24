@@ -1,0 +1,48 @@
+# === AI / YOLO ===
+runs/
+outputs/
+data/
+*.cache
+
+# YOLO project
+safewalk-hanoi-old-quarter.yolov11/
+
+# === Python ===
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Model weights
+*.pt
+*.onnx
+*.tflite
+*.engine
+
+# Env
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Outputs
+outputs/
+app/outputs/
+
+# Build
+app/build/
+app/android/build/
+app/ios/Flutter/ephemeral/
+
+# Data
+*.npy
+
+.claude/
+
+app/analyze_output.txt
