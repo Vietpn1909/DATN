@@ -186,11 +186,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
     final tts = ref.read(ttsServiceProvider);
     final navState = ref.read(navigationProvider);
 
-    // Nếu đang navigate → mở navigation screen
+    // Nếu đang navigate → đọc lại bước chỉ đường hiện tại bằng TTS
     if (navState.isNavigating) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const NavigationScreen()),
-      );
+      _speakCurrentNavigationStep();
       return;
     }
 
@@ -214,18 +212,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
       if (isFinal && text.isNotEmpty) {
         ref.read(sttTextProvider.notifier).state = text;
         await stt.stopListening();
-        // Bắt đầu tìm đường
+        // Bắt đầu tìm đường (navigation chạy nền bằng TTS + GPS)
         await ref.read(navigationProvider.notifier).startNavigation(text);
-        // Mở navigation screen
-        if (mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const NavigationScreen()),
-          );
-        }
+        // KHÔNG push NavigationScreen → detection tiếp tục chạy song song
+        // NavigationPanel trên HomeScreen sẽ hiển thị bước hiện tại
+        // Người dùng có thể tap vào panel để xem bản đồ
       }
     };
 
     await stt.startListening();
+  }
+
+  /// Đọc lại bước chỉ đường hiện tại bằng TTS
+  /// (khi người dùng nhấn mic trong lúc đang navigate)
+  void _speakCurrentNavigationStep() {
+    final navState = ref.read(navigationProvider);
+    final tts = ref.read(ttsServiceProvider);
+    final step = navState.currentStep;
+    if (step != null) {
+      final distM = navState.distanceToNextStepM;
+      String message = step.instructionText;
+      if (distM != null) {
+        final distText = distM >= 1000
+            ? '${(distM / 1000).toStringAsFixed(1)} ki lô mét'
+            : '${distM.round()} mét';
+        message += ', còn $distText';
+      }
+      tts.speak(message);
+    } else {
+      tts.speak('Đang xác định vị trí, vui lòng chờ');
+    }
   }
 
   @override

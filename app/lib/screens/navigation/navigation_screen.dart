@@ -108,8 +108,8 @@ class _NavigationScreenState extends ConsumerState<NavigationScreen> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: _stopNavigation,
-          tooltip: 'Dừng chỉ đường',
+          onPressed: () => Navigator.of(context).pop(),
+          tooltip: 'Quay về phát hiện vật cản',
         ),
         actions: [
           if (route != null)
