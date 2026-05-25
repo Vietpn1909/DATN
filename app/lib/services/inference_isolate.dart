@@ -359,12 +359,26 @@ void inferenceIsolateEntry(InferenceInitMessage initMsg) {
       // 4. Postprocess: decode boxes, NMS
       final rawDetections = postprocessor.process(floatOutputs, outputShapes);
 
-      // 5. Convert to DetectionResult (Simplified: No distance/levels)
+      // 5. Convert to DetectionResult với hệ thống hướng mặt đồng hồ
       final results = rawDetections.map((det) {
         final nameVi = ClassLabels.namesVi[det.classId] ?? 'vật cản';
+        
+        // Tính toán hướng (clock face) dựa trên tâm X của Bounding Box
+        final centerX = det.bbox.centerX;
+        final ratioX = centerX / inputSize;
+        
+        String directionVi;
+        if (ratioX < 0.33) {
+          directionVi = 'hướng 10 giờ'; // Bên trái
+        } else if (ratioX <= 0.66) {
+          directionVi = 'hướng 12 giờ'; // Ở giữa
+        } else {
+          directionVi = 'hướng 2 giờ'; // Bên phải
+        }
+
         return DetectionResult(
           detection: det,
-          warningTextVi: 'Phía trước có $nameVi',
+          warningTextVi: 'Có $nameVi, $directionVi',
         );
       }).toList();
 
