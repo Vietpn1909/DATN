@@ -359,6 +359,42 @@ void inferenceIsolateEntry(InferenceInitMessage initMsg) {
       // 4. Postprocess: decode boxes, NMS
       final rawDetections = postprocessor.process(floatOutputs, outputShapes);
 
+      // --- BƯỚC 4.5: Tìm đường đi an toàn ---
+      bool leftBlocked = false;
+      bool centerBlocked = false;
+      bool rightBlocked = false;
+
+      // Vùng quan tâm (ROI): mép dưới của vật cản phải nằm dưới vạch 25% màn hình
+      final yThreshold = inputSize * 0.25;
+
+      for (final det in rawDetections) {
+        if (det.bbox.y2 > yThreshold) {
+          final centerX = det.bbox.centerX;
+          final ratioX = centerX / inputSize;
+          
+          if (ratioX < 0.33) {
+            leftBlocked = true;
+          } else if (ratioX <= 0.66) {
+            centerBlocked = true;
+          } else {
+            rightBlocked = true;
+          }
+        }
+      }
+
+      String suggestionVi = '';
+      if (centerBlocked) {
+        if (!leftBlocked && !rightBlocked) {
+          suggestionVi = '. Tránh sang trái hoặc phải';
+        } else if (!leftBlocked) {
+          suggestionVi = '. Tránh sang trái';
+        } else if (!rightBlocked) {
+          suggestionVi = '. Tránh sang phải';
+        } else {
+          suggestionVi = '. Dừng lại';
+        }
+      }
+
       // 5. Convert to DetectionResult với hệ thống hướng mặt đồng hồ
       final results = rawDetections.map((det) {
         final nameVi = ClassLabels.namesVi[det.classId] ?? 'vật cản';
@@ -378,7 +414,7 @@ void inferenceIsolateEntry(InferenceInitMessage initMsg) {
 
         return DetectionResult(
           detection: det,
-          warningTextVi: 'Có $nameVi, $directionVi',
+          warningTextVi: 'Có $nameVi, $directionVi$suggestionVi',
         );
       }).toList();
 
