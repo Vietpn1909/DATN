@@ -57,8 +57,8 @@ class ClassLabels {
     0: 0.50, // person (dễ nhận diện -> ngưỡng cao)
     1: 0.50, // bicyclist
     2: 0.50, // motorcyclist
-    3: 0.55, // car (to -> ngưỡng rất cao)
-    4: 0.55, // bus (to -> ngưỡng rất cao)
+    3: 0.65, // car (to -> ngưỡng rất cao, chống nhận diện nhầm)
+    4: 0.65, // bus (to -> ngưỡng rất cao, chống nhận diện nhầm)
     5: 0.50, // motorcycle
     6: 0.35, // crosswalk (khó nhìn -> ngưỡng thấp)
     7: 0.35, // pole

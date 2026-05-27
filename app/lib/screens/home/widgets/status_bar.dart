@@ -51,15 +51,6 @@ class StatusBar extends StatelessWidget {
 
 
 
-            const SizedBox(height: 4),
-            // FPS (nhỏ hơn, cho developer/caregiver)
-            Text(
-              '${fps.toStringAsFixed(0)} FPS',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white.withOpacity(0.6),
-              ),
-            ),
           ],
         ),
       ),

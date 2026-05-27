@@ -52,6 +52,16 @@ class YoloPostprocessor {
       final dynamicThreshold = ClassLabels.confThresholds[maxClassId] ?? confThreshold;
       if (maxScore < dynamicThreshold) continue;
 
+      // Bộ lọc hình học (Heuristic Aspect Ratio Filter)
+      // Ô tô (3) và Xe buýt (4) thường nằm ngang hoặc vuông, rất hiếm khi là một hình chữ nhật đứng hẹp.
+      // Nếu tỷ lệ width/height < 0.6 (quá hẹp và cao), đó thường là cánh cửa, cột nhà, hoặc người bị nhận diện nhầm.
+      if (maxClassId == 3 || maxClassId == 4) {
+        final aspectRatio = w / h;
+        if (aspectRatio < 0.6) {
+          continue; // Bỏ qua vật thể quá hẹp và cao (không thể là ô tô)
+        }
+      }
+
       filtered.add(_RawDetection(
         x1: cx - w / 2,
         y1: cy - h / 2,
