@@ -56,10 +56,10 @@ class ClassLabels {
   static const Map<int, double> confThresholds = {
     0: 0.50, // person (dễ nhận diện -> ngưỡng cao)
     1: 0.50, // bicyclist
-    2: 0.50, // motorcyclist
-    3: 0.65, // car (to -> ngưỡng rất cao, chống nhận diện nhầm)
-    4: 0.65, // bus (to -> ngưỡng rất cao, chống nhận diện nhầm)
-    5: 0.50, // motorcycle
+    2: 0.65, // motorcyclist (nâng ngưỡng chống FP indoor)
+    3: 0.75, // car (to -> ngưỡng rất cao, chống nhận diện nhầm)
+    4: 0.75, // bus (to -> ngưỡng rất cao, chống nhận diện nhầm)
+    5: 0.65, // motorcycle (nâng ngưỡng chống FP indoor)
     6: 0.35, // crosswalk (khó nhìn -> ngưỡng thấp)
     7: 0.35, // pole
     8: 0.40, // traffic_light

@@ -32,7 +32,10 @@ class SttService {
 
     await _stt.listen(
       localeId: 'vi_VN',
-      listenMode: ListenMode.confirmation,
+      listenMode: ListenMode.dictation, // Dùng dictation cho câu dài thay vì confirmation
+      pauseFor: const Duration(seconds: 3), // Chờ người dùng 3 giây nếu họ ngập ngừng
+      listenFor: const Duration(seconds: 5), // Lắng nghe tối đa 5 giây theo yêu cầu
+      partialResults: true, // Lấy cả kết quả trung gian
       onResult: (result) {
         onResult?.call(
           result.recognizedWords,
