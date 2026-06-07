@@ -126,11 +126,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
       _lastFpsUpdate = now;
     }
 
-    // Xử lý warning trực tiếp từ raw detections (bỏ qua temporal filter để phản ứng nhanh nhất)
+    // Sử dụng DangerZoneService để filter false positives qua temporal window
+    final dangerZoneService = ref.read(dangerZoneServiceProvider);
+    final dangerZone = dangerZoneService.analyze(result.detections);
+
     final warningService = ref.read(warningServiceProvider);
     final warningResult = warningService.getNextWarning(
       result,
-      dangerZone: null,
+      dangerZone: dangerZone,
     );
 
     if (warningResult != null) {

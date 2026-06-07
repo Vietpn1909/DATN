@@ -60,6 +60,22 @@ class YoloPostprocessor {
         if (aspectRatio < 0.6) {
           continue; // Bỏ qua vật thể quá hẹp và cao (không thể là ô tô)
         }
+        // Ô tô/xe buýt thật phải chiếm ít nhất 2% diện tích khung hình
+        final bboxArea = w * h;
+        final imageArea = inputSize * inputSize;
+        if (bboxArea / imageArea < 0.02) {
+          continue; // Bỏ qua bbox quá nhỏ (noise)
+        }
+      }
+
+      // Bộ lọc hình học cho xe máy (5) và người đi xe máy (2)
+      // Xe máy thật phải chiếm ít nhất 1.5% diện tích khung hình
+      if (maxClassId == 2 || maxClassId == 5) {
+        final bboxArea = w * h;
+        final imageArea = inputSize * inputSize;
+        if (bboxArea / imageArea < 0.015) {
+          continue; // Bỏ qua bbox quá nhỏ (noise)
+        }
       }
 
       filtered.add(_RawDetection(

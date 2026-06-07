@@ -31,7 +31,7 @@ class CameraService {
     // Resolution medium để cân bằng chất lượng và tốc độ
     _controller = CameraController(
       backCamera,
-      ResolutionPreset.low, // QVGA - giảm tải mạnh cho iOS CPU preprocessing
+      ResolutionPreset.medium, // 480p - cân bằng chất lượng và tốc độ
       enableAudio: false,
       imageFormatGroup: defaultTargetPlatform == TargetPlatform.iOS 
           ? ImageFormatGroup.bgra8888 
