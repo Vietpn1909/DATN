@@ -14,15 +14,15 @@ DATN (Do An Tot Nghiep) - Ung dung ho tro nguoi khiem thi di lai an toan tai khu
 
 | Component | Technology |
 |-----------|------------|
-| ML Model | YOLO11-seg (Ultralytics) |
+| ML Model | YOLO11n detection (Ultralytics) — 11 classes, bounding box |
 | Training Framework | PyTorch + Ultralytics |
 | Dataset | Mapillary Vistas v2.0 + Custom Old Quarter dataset |
-| Mobile App | Flutter |
-| On-device Inference | TFLite / ONNX Runtime Mobile |
-| Navigation | Google Maps Directions API |
-| Voice Input | Speech-to-Text (Google/platform native) |
-| Voice Output | Text-to-Speech (flutter_tts) |
-| Depth Estimation | MiDaS / Depth Anything v2 (optional) |
+| Mobile App | Flutter (Riverpod state management) |
+| On-device Inference | TFLite Float16 (`best_float16.tflite`, ~20MB) |
+| Navigation / Maps | Goong Maps API + flutter_map (Vietnam-localized) |
+| Voice Input | Speech-to-Text (`speech_to_text` package, vi-VN) |
+| Voice Output | Text-to-Speech (`flutter_tts`, vi-VN) |
+| Threat Assessment | Bounding box area ratio + temporal filter (2/3 frames) |
 
 ## Project Structure
 
@@ -44,28 +44,36 @@ DATN/
 └── app/                        # Flutter mobile app (upcoming)
 ```
 
-## 11 Target Classes (Segmentation)
+## 11 Target Classes (Detection — bounding box)
 
 person, bicyclist, motorcyclist, car, bus, motorcycle, crosswalk, pole, traffic_light, traffic_sign, barrier
 
+Per-class confidence thresholds (see `app/lib/core/constants/class_labels.dart`):
+- person (0.50), bicyclist (0.50)
+- motorcyclist (0.65), motorcycle (0.65)
+- car (0.75), bus (0.75) — strict to avoid FP
+- crosswalk (0.35), pole (0.35), barrier (0.35)
+- traffic_light (0.40), traffic_sign (0.40)
+
 ## Current Status
 
-- [x] Mapillary dataset conversion (detection + segmentation)
-- [x] YOLO11n-seg trained (50 epochs) - baseline metrics low
-- [ ] YOLO11s-seg training (150 epochs) - in progress
-- [ ] Fine-tune on Old Quarter custom dataset
-- [ ] Distance estimation module
-- [ ] Export model to TFLite/ONNX
-- [ ] Flutter app development
-- [ ] Voice navigation integration
-- [ ] Real-device testing
+- [x] Mapillary dataset conversion (detection format)
+- [x] YOLO11n detection trained — 2-stage pipeline (Mapillary 150 epochs + Old Quarter fine-tune 86 epochs)
+- [x] Fine-tune on Old Quarter custom dataset (bounding box mAP50 = 0.687)
+- [x] Threat assessment via bounding box area ratio + temporal filter
+- [x] Export model to TFLite Float16
+- [x] Flutter app development (Riverpod + tflite_flutter + Goong API)
+- [x] Voice navigation integration (STT + Goong Direction + TTS)
+- [x] Real-device testing on iPhone 13
+- [ ] Settings screen (UC4.x — TTS speed, volume, system status)
 
 ## Important Rules
 
-- GPU: NVIDIA GTX 1650 (4GB VRAM) - keep batch_size <= 8 for seg training
+- GPU: NVIDIA GTX 1650 (4GB VRAM) — keep batch_size <= 16 for detection training
 - All training scripts must support --resume for interrupted training
-- Model must run real-time (>= 15 FPS) on mid-range Android phones
-- Vietnamese language support required for TTS/STT
-- Target audience: visually impaired users - UI must be fully accessible
+- Model must run real-time (>= 15 FPS) on iPhone 13 (Apple A15 Bionic)
+- Vietnamese language support required for TTS/STT (vi-VN)
+- Target audience: visually impaired users — UI must be fully accessible (VoiceOver/TalkBack)
 - All obstacle warnings must be in Vietnamese audio
 - Code comments in Vietnamese are acceptable
+- Goong Direction API uses `vehicle=bike` mode (no walking mode available)

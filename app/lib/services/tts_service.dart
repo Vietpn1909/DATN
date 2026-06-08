@@ -21,11 +21,33 @@ enum TtsMessageType { navigation, lowWarning, warning, urgentWarning }
 /// - navigation (chỉ đường): Bị ngắt bởi warning/urgentWarning
 class TtsService {
   final FlutterTts _tts = FlutterTts();
-  bool _isSpeaking = false;
+  bool _isSpeakingFlag = false;
   bool _isInitialized = false;
+
+  /// Thời điểm bắt đầu speak hiện tại (để fallback khi completion handler bị miss)
+  int _speakStartedAt = 0;
+
+  /// Thời gian tối đa một câu nói được phép kéo dài.
+  /// Nếu completion handler không fire (lỗi platform flutter_tts trên iOS),
+  /// dùng timeout này để tự reset `_isSpeaking` → tránh kẹt trạng thái
+  /// khiến mọi cảnh báo sau đó bị drop.
+  static const int _maxSpeakDurationMs = 10000;
 
   /// Loại tin nhắn đang được phát
   TtsMessageType _currentType = TtsMessageType.navigation;
+
+  /// Có đang phát không — tự reset nếu vượt quá `_maxSpeakDurationMs`
+  /// (phòng trường hợp completion handler bị miss trên iOS).
+  bool get _isSpeaking {
+    if (!_isSpeakingFlag) return false;
+    final elapsed = DateTime.now().millisecondsSinceEpoch - _speakStartedAt;
+    if (elapsed > _maxSpeakDurationMs) {
+      print('[TTS] ⏰ Speak watchdog timeout (${elapsed}ms) — force clearing stuck state');
+      _isSpeakingFlag = false;
+      return false;
+    }
+    return true;
+  }
 
   bool get isSpeaking => _isSpeaking;
 
@@ -63,17 +85,24 @@ class TtsService {
       await _tts.setVolume(AppConstants.ttsVolume);
       await _tts.setPitch(AppConstants.ttsPitch);
 
-      // Callbacks
+      // Callbacks — vẫn lắng nghe nhưng KHÔNG phụ thuộc 100% vào chúng,
+      // vì flutter_tts trên iOS đôi khi không gọi completion handler sau
+      // khi `stop()` được gọi liên tiếp trước `speak()` (pattern của cảnh báo).
       _tts.setStartHandler(() {
-        _isSpeaking = true;
+        _isSpeakingFlag = true;
+        _speakStartedAt = DateTime.now().millisecondsSinceEpoch;
         print('[TTS] Started speaking');
       });
       _tts.setCompletionHandler(() {
-        _isSpeaking = false;
+        _isSpeakingFlag = false;
         print('[TTS] Completed');
       });
+      _tts.setCancelHandler(() {
+        _isSpeakingFlag = false;
+        print('[TTS] Cancelled');
+      });
       _tts.setErrorHandler((msg) {
-        _isSpeaking = false;
+        _isSpeakingFlag = false;
         print('[TTS] ERROR: $msg');
       });
 
@@ -105,13 +134,14 @@ class TtsService {
         // Ngắt mọi thứ, phát cảnh báo khẩn cấp ngay
         print('[TTS] ⚠️ URGENT WARNING - interrupting: $text');
         _currentType = type;
+        _markSpeakingNow();
         await _tts.stop();
         await _tts.speak(text);
         break;
 
       case TtsMessageType.warning:
         // Ngắt navigation để cảnh báo, nhưng không ngắt warning khác
-        if (_isSpeaking && (_currentType == TtsMessageType.warning || 
+        if (_isSpeaking && (_currentType == TtsMessageType.warning ||
             _currentType == TtsMessageType.urgentWarning)) {
           // Đang phát cảnh báo khác → bỏ qua để tránh chồng chéo
           print('[TTS] ⏭ Dropped warning (another warning speaking): $text');
@@ -119,6 +149,7 @@ class TtsService {
         }
         print('[TTS] ⚡ WARNING - interrupting navigation: $text');
         _currentType = type;
+        _markSpeakingNow();
         await _tts.stop();
         await _tts.speak(text);
         break;
@@ -131,6 +162,7 @@ class TtsService {
         }
         print('[TTS] 📢 Low warning: $text');
         _currentType = type;
+        _markSpeakingNow();
         await _tts.speak(text);
         break;
 
@@ -138,15 +170,26 @@ class TtsService {
         // Phát bình thường (có thể bị ngắt bởi warning)
         print('[TTS] 🧭 Navigation: $text');
         _currentType = type;
+        _markSpeakingNow();
         await _tts.speak(text);
         break;
     }
+  }
+
+  /// Đánh dấu đang phát NGAY LẬP TỨC (không chờ setStartHandler).
+  /// Quan trọng: setStartHandler async có thể trễ hoặc bị miss trên iOS.
+  /// Việc set đồng bộ ở đây đảm bảo logic priority hoạt động đúng,
+  /// còn watchdog timeout (10s) sẽ tự reset nếu completion handler bị miss.
+  void _markSpeakingNow() {
+    _isSpeakingFlag = true;
+    _speakStartedAt = DateTime.now().millisecondsSinceEpoch;
   }
 
   /// Nói ngay - ngắt câu đang nói (dùng cho close warning)
   Future<void> speakImmediate(String text) async {
     if (!_isInitialized || text.isEmpty) return;
     _currentType = TtsMessageType.urgentWarning;
+    _markSpeakingNow();
     await _tts.stop();
     await _tts.speak(text);
   }
@@ -154,7 +197,7 @@ class TtsService {
   /// Dừng nói
   Future<void> stop() async {
     await _tts.stop();
-    _isSpeaking = false;
+    _isSpeakingFlag = false;
   }
 
   /// Giải phóng
