@@ -124,10 +124,10 @@ class WarningService {
   /// Khu vực đông → tăng cooldown để TTS không nói liên tục gây rối.
   /// Khu vực vắng → cooldown ngắn để phản hồi nhanh.
   int _getAdaptiveCooldown(int obstacleCount) {
-    if (obstacleCount >= 8) return 3000;  // Rất đông: 3s giữa mỗi cảnh báo
-    if (obstacleCount >= 5) return 2500;  // Đông: 2.5s
-    if (obstacleCount >= 3) return 2000;  // Vừa: 2s (mặc định)
-    return AppConstants.warningCooldownMs; // Bình thường: 2s
+    if (obstacleCount >= 8) return 2000;  // Rất đông: 2s giữa mỗi cảnh báo
+    if (obstacleCount >= 5) return 1500;  // Đông: 1.5s
+    if (obstacleCount >= 3) return 1200;  // Vừa: 1.2s
+    return 1000; // Bình thường: 1s (AppConstants.warningCooldownMs là 3s nên bỏ đi)
   }
 
   /// Reset cooldown (khi dừng detection)
