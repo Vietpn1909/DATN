@@ -1,0 +1,24 @@
+# Cấu hình môi trường Python cho huấn luyện YOLO11n và xử lý dữ liệu
+# Cách chạy: pip install -r requirements.txt
+
+# --- Core Machine Learning ---
+torch>=2.0.0
+torchvision
+torchaudio
+ultralytics>=8.1.0
+
+# --- Xử lý hình ảnh và dữ liệu ---
+opencv-python>=4.8.0
+numpy>=1.24.0
+Pillow>=10.0.0
+scipy>=1.10.0
+
+# --- Xuất mô hình (TFLite / ONNX) ---
+onnx>=1.15.0
+onnxruntime-gpu
+tensorflow>=2.15.0 ; sys_platform != 'darwin' # Dùng để convert TFLite
+
+# --- Tiện ích ---
+tqdm
+matplotlib
+pyyaml
