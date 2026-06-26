@@ -9,21 +9,21 @@ Dự án Ứng dụng Hỗ trợ người khiếm thị đi lại an toàn tại
 ## 🏗 Kiến Trúc Hệ Thống (System Architecture)
 ```mermaid
 graph TD
-    A[Camera Điện Thoại] -->|Frame (30FPS)| B[Flutter Isolate]
+    A["Camera Điện Thoại"] -- "Frame (30FPS)" --> B["Flutter Isolate"]
     
-    subgraph Lõi AI xử lý nền
-    B -->|Pre-process YUV/RGB| C(TFLite Model - YOLO11n)
-    C -->|BBox Tensors| D[Yolo Postprocessor]
-    D -->|Lọc Nhiễu/NMS| E{DangerZone Service}
+    subgraph AI ["Lõi AI xử lý nền"]
+    B -- "Pre-process YUV/RGB" --> C("TFLite Model - YOLO11n")
+    C -- "BBox Tensors" --> D["Yolo Postprocessor"]
+    D -- "Lọc Nhiễu/NMS" --> E{"DangerZone Service"}
     end
     
-    E -->|Area Ratio & Hướng| F[Warning Service]
-    F -->|Adaptive Cooldown| G((TTS - Phát Âm Thanh))
+    E -- "Area Ratio & Hướng" --> F["Warning Service"]
+    F -- "Adaptive Cooldown" --> G(("TTS - Phát Âm Thanh"))
     
-    subgraph Lõi Chỉ Đường
-    H[Voice Input - STT] --> I[Goong Map API]
-    I -->|Waypoints| J[Navigation Provider]
-    J -->|GPS Real-time| G
+    subgraph NAV ["Lõi Chỉ Đường"]
+    H["Voice Input - STT"] --> I["Goong Map API"]
+    I -- "Waypoints" --> J["Navigation Provider"]
+    J -- "GPS Real-time" --> G
     end
 ```
 
